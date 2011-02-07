@@ -421,7 +421,7 @@ nor indentation.")
 ;;; My additions and alterations to the library
 
 
-(defvar *wiki-macro-hash* (make-hash-table :test #'eql)
+(defvar *macro-hash* (make-hash-table :test #'eql)
   "Hash-table containing the functions to be called in response to
   'macro' wikimarkup taqs.
   The keys are keyword symbols.
@@ -450,7 +450,7 @@ nor indentation.")
   (multiple-value-bind
    (tag attributes body) (parse-cons-form form)
    ;; Look for a wiki-macro corresponding to this tag
-   (let ((m-function (gethash tag *wiki-macro-hash*)))
+   (let ((m-function (gethash tag *macro-hash*)))
         ;; If we find a wiki-macro corresponding to the tag,
         ;; feed it the attributes and body, and process the result.
         (if m-function
@@ -468,7 +468,7 @@ nor indentation.")
 
 ;; Custom wikimarkup macros
 
-(setf (gethash :link *wiki-macro-hash*)
+(setf (gethash :link *macro-hash*)
       (lambda (attributes target)
         ":link macro, for automagically linking to other pages by title.
         I expect to expand this to handle links to other kinds of content,
