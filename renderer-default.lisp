@@ -475,24 +475,9 @@ nor indentation.")
         such as attachments, but for now we only do pages."
         (let* ((link-target (car target))
                (text (getf attributes :text))
-               (ltype (or (getf attributes :type) "page"))
                (display-text (if text text link-target)))
-          (declare (ignore ltype))
           (values :a
-                  (list :href
-                        (cond
-                          ((and
-                             (> (length link-target) 6)
-                             (equal "http://"
-                                    (subseq link-target 0 7)))
-                           link-target)
-                          ((and
-                             (> (length link-target) 7)
-                             (equal "https://"
-                                    (subseq link-target 0 8)))
-                           link-target)
-                          (t
-                            (format nil "/pages?title=~a" link-target))))
+                  (list :href link-target)
                   (list display-text)))))
 
 
