@@ -20,7 +20,7 @@
   Arguments:
   - a string-stream, such as that provided by (with-input-from-string)
   - (optional) link title (string)
-  - (optional) target URL/pagetitle"
+  - (optional) link target (string)"
   (let ((newchar (read-char instream nil)))
     (cond
       ;; We're at the end of either the link or the whole string
