@@ -1,0 +1,11 @@
+Things yet to do before I'm calling it v1.0:
+- fix the use of *pretty*. Its current application is legacy from before this was extracted as a separate package.
+- handling unordered lists
+- handling ordered lists (less of a priority because I use them less)
+- generalised markup macros, in the form of {macro}content{/macro}
+- full suite of tests, which is bound to find edge-cases and all manner of other shortcomings
+- more useful set of examples
+- ensuring it works for a whole page including the head and body sections, as well as the body content that it's currently geared for
+- possibly one more type of markup, but then I'd need to come up with a very different (and decidedly robust) approach to auto-selection. This is much more likely to be v1.1 or v2.
+- drop the XHTML option, since the rest of the world appears to be giving up o XHTML anyway
+- abstract all exported functions into common files that are independent of the parsers and renderers. This is true of 'render-content, but not of 'escape-string, which probably wants moving into something like utils.lisp.

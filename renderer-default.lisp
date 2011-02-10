@@ -1,12 +1,12 @@
 (in-package :mark-and-render)
 
 ;;; Shamelessly yanked from chapter 30 of Peter Seibel's marvellous book,
-;;; Practical Common Lisp.
+;;; Practical Common Lisp (published by Apress - do buy a copy).
 ;;; In the first section, I've mostly just changed the layout and added
 ;;; comments and documentation.
 ;;;
 ;;; Except where otherwise noted, copyright belongs to Peter Seibel.
-;;; Any bugs and omissions are mine.
+;;; Any bugs, shortcomings and omissions are mine.
 
 (defvar *pretty* t
   "Whether to use the pretty-printer.
@@ -15,7 +15,7 @@
 
 ;; Swiped from Edi Weitz' CL-WHO:
 (defparameter *attribute-quote-char* (princ-to-string #\")
-  "Quote character for attributes.")
+  "Quote character for attributes. Defined here so that it can be redefined if you want to use single-quotes, French-style angle-brackets or whatever.")
 
 (defun self-evaluating-p (form)
   "Determines whether an s-expression is a self-evaluating form
@@ -23,7 +23,9 @@
   Argument: s-expr
   Returns: boolean"
   (and (atom form)
-       (if (symbolp form) (keywordp form) t)))
+       (if (symbolp form)
+         (keywordp form)
+         t)))
 
 (defun cons-form-p (form &optional (test #'keywordp))
   "Determines whether an s-expression matches either of two forms of markup:
@@ -126,17 +128,19 @@
 
 (defparameter *element-escapes* "<>&"
   "Characters that need to be escaped in normal HTML element data.")
+
 (defparameter *attribute-escapes* "<>&\"'"
   "Characters that need to be escaped within HTML attribute values.")
+
 (defvar *escapes* *element-escapes*
   "The set of characters that need to be escaped.
   This is prone to being rebound when attributes are being marked up.")
 
 (defclass indenting-printer ()
-  ((out                 :accessor out                 :initarg :out)
+  ((out :accessor out :initarg :out)
    (beginning-of-line-p :accessor beginning-of-line-p :initform t)
-   (indentation         :accessor indentation         :initform 0)
-   (indenting-p         :accessor indenting-p         :initform t))
+   (indentation :accessor indentation :initform 0)
+   (indenting-p :accessor indenting-p :initform t))
   (:documentation "Wraps around an output stream.
   Instances are used by functions to emit strings to the stream while
   keeping track of when they're at the beginning of the line.

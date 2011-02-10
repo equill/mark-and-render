@@ -1,0 +1,24 @@
+README for mark-and-render
+
+Basic package for parsing and rendering wiki-style markup into HTML.
+Designed to be extensible via render macros. The emphasis is on *basic* and scope is restricted to parsing-and-rendering for markup to HTML.
+
+The internal protocol is nice and simple: the parser turns its input into the kind of AST as one would find from READing an s-expression, and the renderer takes that AST and turns it into HTML.
+It would be entirely feasible to replace the default renderer, though I've currently installed no explicit mechanism to make said replacement any simpler than editing the .asd file.
+
+Two styles of markup:
+- wikimarkup, at least one variety thereof
+- s-expressions
+
+Two symbols are exported:
+- render-content (from mar.lisp)
+- escape-string (from renderer-default.lisp)
+The parsers don't export anything, and never should.
+
+render-content takes a string, expecting either s-expressions or wikimarkup, and returns a string containing the resulting HTML.
+
+escape-string takes a string and replaces characters of concern with the equivalent HTML entities.
+
+For examples, read (the very short and rudimentary) test.lisp.
+
+There's a basic example of the available extensibility in the form of the :link function in the renderer, but a more generally useful means of inserting macro tags is next in the pipeline.
