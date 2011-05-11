@@ -113,21 +113,21 @@
 
 (defun parse-line-from-string (line)
   "Parse a string as a line of wikimarkup"
-  ;; Debugging
-  ;(format t "~& Parsing line '~a'" line)
-  (let ((heading (when (> (length line) 3)
-                   (get-heading line))))
-    (cond
-      (heading
-        (with-input-from-string (instream (subseq line 4))
-          (parse-line-remainder
-            instream
-            :content (list heading))))
-      (t
-        (with-input-from-string (instream line)
-          (parse-line-remainder
-            instream
-            :content (list :p)))))))
+  (if (equal line (format nil "~A" #\Return))
+    (list :br)
+    (let ((heading (when (> (length line) 3)
+                     (get-heading line))))
+      (cond
+        (heading
+          (with-input-from-string (instream (subseq line 4))
+            (parse-line-remainder
+              instream
+              :content (list heading))))
+        (t
+          (with-input-from-string (instream line)
+            (parse-line-remainder
+              instream
+              :content (list :div))))))))
 
 (defun render-wikimarkup-line (line)
   "Renders a single line of wikimarkup as HTML"
@@ -141,7 +141,8 @@
     (with-output-to-string (outstr)
       (loop for line = (read-line instr nil)
             while line
-            do (princ (emit-html-to-string (parse-line-from-string line)) outstr)))))
+            do (princ (emit-html-to-string (parse-line-from-string line))
+                      outstr)))))
 
 
 ;;; The object-oriented approach didn't work out quite as well as I'd hoped.
