@@ -1,6 +1,0 @@
-Bugs in mark-and-render.
-
-None currently identifed, at least as bugs as such.
-
-The main issue is that each line is regarded as a separate paragraph, rather than adding a line-break for single carriage-returns and ending paragraphs for double carriage-returns, but this is more of a design shortcoming than an actual bug.
-This lies in the wikimarkup parser.

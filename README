@@ -22,3 +22,5 @@ escape-string takes a string and replaces characters of concern with the equival
 For examples, read (the very short and rudimentary) test.lisp.
 
 There's a basic example of the available extensibility in the form of the :link function in the renderer, but a more generally useful means of inserting macro tags is next in the pipeline.
+
+Bugs are tracked via BugsEverywhere (http://www.bugseverywhere.org/), to keep it in sync with the state of whatever version you happen to be working with.

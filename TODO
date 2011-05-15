@@ -1,3 +1,11 @@
+Current roadmap:
+- replace the existing line-by-line wikimarkup parser with a single-pass, character-at-a-time parser. This will enable...
+- ul/ol lists, starting with single-depth, but progressing to 3-deep nesting as quickly as I can
+- proper handling of line separations, allowing smarter application of <p> and <br>, to replace the current blunt-instrument, everything-is-a-div approach
+- implementing {macro-name}content{/macro-name} hooks for user-added macros
+- designing and implementing a mechanism for easily selecting among renderers. The urgency of this is basically that of writing and incorporating a new renderer; don't hold your breath unless you're writing one.
+
+
 Things yet to do before I'm calling it v1.0:
 - fix the use of *pretty*. Its current application is legacy from before this was extracted as a separate package.
 - handling unordered lists
