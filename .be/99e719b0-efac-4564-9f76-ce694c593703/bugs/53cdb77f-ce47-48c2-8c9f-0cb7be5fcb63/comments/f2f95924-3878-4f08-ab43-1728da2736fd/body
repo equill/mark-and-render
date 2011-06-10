@@ -1,0 +1,1 @@
+Added a couple more tests to cover existing behaviour. The problem is that I'm not convinced that current behaviour is what it should be, but at least we have a clear record of what it is.
