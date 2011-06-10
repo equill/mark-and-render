@@ -12,6 +12,7 @@
            :components ((:file "defpackage")
                         (:file "renderer-default")
                         (:file "parser-markup-wiki")
+                        (:file "parser-markup-wiki-char")
                         (:file "parser-markup-cl")
                         (:file "mar"))
            :serial t)
