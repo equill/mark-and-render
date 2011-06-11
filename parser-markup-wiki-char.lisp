@@ -89,6 +89,9 @@
          (not escaped)
          (equal newchar #\\))
        (mid-line instream :content content :currstr currstr :escaped t))
+      ;; Newline
+      ((equal newchar #\Newline)
+       (mid-line instream :content (append content (list currstr) (list :br))))
       ;; End-of-line
       ((null newchar)
        (append content (list currstr)))
