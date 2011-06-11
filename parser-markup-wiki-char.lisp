@@ -18,6 +18,9 @@
       ;; If we've been handed the end of the string, return the list accumulator
       ((null c)
        list-acc)
+      ;; Escape the next character
+      ((equal c #\\)
+       (mid-line instr :escaped t))
       ;; Italic
       ((equal c #\_)
        (append (list (parse-italic instr)) (parse-line-remainder instr)))
