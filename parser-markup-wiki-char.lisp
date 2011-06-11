@@ -99,29 +99,3 @@
           :currstr (if currstr
                      (format nil "~a~a" currstr newchar)
                      (string newchar)))))))
-
-#+(or)
-(defun mid-line (instr &key next-char char-acc (list-acc nil))
-  "Parses post-start line content.
-  Something of a dispatching function to <em>, <strong> and macros."
-  (cond
-    ;; We've been passed an empty next-char
-    ((equal next-char "")
-     ;; If there's a character to read from the string, send it back around
-     ;; through this function. Otherwise, return the list accumulator.
-     (let ((c (read-char instr nil nil)))
-       (if c
-         (mid-line instr :next-char (string c) :char-acc "" :list-acc list-acc)
-         (list list-acc char-acc))))
-    ((equal next-char #\_)
-     (mid-line
-       instr
-       :next-char ""
-       :char-acc ""
-       :list-acc (append list-acc (list char-acc (parse-italic instr)))))
-    (t
-      (let ((c (read-char instr nil nil))
-            (new-acc (concatenate 'string char-acc (string next-char))))
-        (if c
-          (mid-line instr :next-char c :char-acc new-acc)
-          (append list-acc new-acc))))))
