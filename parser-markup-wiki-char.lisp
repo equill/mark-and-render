@@ -92,6 +92,7 @@
       ;; End-of-line
       ((null newchar)
        (append content (list currstr)))
+      ;; Default: add the current character to the string we're accumulating
       (t
         (mid-line
           instream
