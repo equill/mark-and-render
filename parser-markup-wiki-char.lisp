@@ -85,7 +85,7 @@
        (mid-line
          instream
          :content content
-         :currstr (format nil "~a" newchar)))
+         :currstr (string newchar)))
       (t
         (mid-line
           instream
