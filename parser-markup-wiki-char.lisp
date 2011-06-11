@@ -9,6 +9,18 @@
   (with-input-from-string (instr pagestring)
     (start-of-line instr)))
 
+(defun cond-append (lst func arg)
+  "Helper function to conditionally concatenate a list and the result of
+  applying another function to its argument, depending on whether something other
+  than nested nulls are returned."
+  (let ((result (funcall func arg)))
+    ;; If we're not returned a list containing only an empty list...
+    (if (and result
+             (or (atom result)
+                 (car result)))
+      (append (list lst) result)
+      (list lst))))
+
 (defun start-of-line (instr &optional (char-acc "") (list-acc nil))
   "Determines whether the start of the line contains a heading, list item or
   something else of the kind, then passes the result along.
@@ -23,10 +35,10 @@
        (mid-line instr :escaped t))
       ;; Italic
       ((equal c #\_)
-       (append (list (parse-italic instr)) (parse-line-remainder instr)))
+       (cond-append (parse-italic instr) #'mid-line instr))
       ;; Bold
       ((equal c #\*)
-       (append (list (parse-bold instr)) (parse-line-remainder instr)))
+       (cond-append (parse-bold instr) #'mid-line instr))
       ;; The beginning of a list
       ((and
          (equal char-acc "")
