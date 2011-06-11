@@ -92,17 +92,13 @@
       ;; End-of-line
       ((null newchar)
        (append content (list currstr)))
-      ;; Add the current character to the end
-      ((null currstr)
-       (mid-line
-         instream
-         :content content
-         :currstr (string newchar)))
       (t
         (mid-line
           instream
           :content content
-          :currstr (format nil "~a~a" currstr newchar))))))
+          :currstr (if currstr
+                     (format nil "~a~a" currstr newchar)
+                     (string newchar)))))))
 
 #+(or)
 (defun mid-line (instr &key next-char char-acc (list-acc nil))
