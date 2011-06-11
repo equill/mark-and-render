@@ -63,31 +63,31 @@
       ((and
          (not escaped)
          (equal newchar #\_))
-       (parse-line-remainder
+       (mid-line
          instream
          :content (append content (list currstr) (list (parse-italic instream)))))
       ;; Bold markup
       ((and (not escaped)
             (equal newchar #\*))
-       (parse-line-remainder
+       (mid-line
          instream
          :content (append content (list currstr) (list (parse-bold instream)))))
       ;; Escape the next character
       ((and
          (not escaped)
          (equal newchar #\\))
-       (parse-line-remainder instream :content content :currstr currstr :escaped t))
+       (mid-line instream :content content :currstr currstr :escaped t))
       ;; End-of-line
       ((null newchar)
        (append content (list currstr)))
       ;; Add the current character to the end
       ((null currstr)
-       (parse-line-remainder
+       (mid-line
          instream
          :content content
          :currstr (format nil "~a" newchar)))
       (t
-        (parse-line-remainder
+        (mid-line
           instream
           :content content
           :currstr (format nil "~a~a" currstr newchar))))))
