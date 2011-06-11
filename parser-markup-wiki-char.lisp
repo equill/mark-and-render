@@ -12,7 +12,7 @@
 (defun start-of-line (instr &optional (char-acc "") (list-acc nil))
   "Determines whether the start of the line contains a heading, list item or
   something else of the kind, then passes the result along.
-  Currently checking for: .h[1-6]"
+  Currently checking for: :h[1-6]"
   (let ((c (read-char instr nil nil)))
     (cond
       ;; If we've been handed the end of the string, return the list accumulator
