@@ -487,8 +487,10 @@ nor indentation.")
 
 ;; Handy hook for invoking all the above
 
-(defun emit-html-to-string (sexp)
+(defun emit-html-to-string (sexp &optional outstr)
   "Transforms a single s-expr to HTML, and returns the result as a string.
   Argument: s-expr in valid markup
   Returns: string"
-  (with-output-to-string (str1) (emit-html str1 sexp)))
+  (if outstr
+    (emit-html outstr sexp)
+    (with-output-to-string (str1) (emit-html str1 sexp))))
