@@ -6,12 +6,6 @@
 ;;; (run! 'm-a-r)
 
 
-(use-package :eos)
-
-(defmacro with-test-results ((results test-name) &body body)
-  `(let ((,results (with-*test-dribble* nil (run ',test-name))))
-     ,@body))
-
 (def-suite m-a-r)
 (in-suite m-a-r)
 

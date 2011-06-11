@@ -23,4 +23,6 @@
            :license "LLGPL"
            :depends-on (mark-and-render
                          eos)
-           :components ((:file "mark-and-render-tests")))
+           :components ((:file "defpackage-tests")
+                        (:file "mark-and-render-tests"))
+           :serial t)
