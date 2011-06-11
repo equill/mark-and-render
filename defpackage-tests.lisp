@@ -1,3 +1,4 @@
 (defpackage :mark-and-render-tests
-  (:use :eos)
+  (:use :eos
+        :cl-user)
   (:export m-a-r))
