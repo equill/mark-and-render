@@ -7,7 +7,7 @@ reporter: James Fleming <james@electronic-quill.net>
 severity: minor
 
 
-status: open
+status: fixed
 
 
 summary: Deprecate the use of 'mark-and-render:render-content in favour of embedding
