@@ -1,10 +1,14 @@
 (in-package :mark-and-render)
 
-(defun render-content (instr &key (pretty *pretty*))
-  "Transform the content of a page object into HTML.
+(defun auto-render-content (instr &key (pretty *pretty*))
+  "Demo function; its use is deprecated in favour of embedding suitable logic
+  into the calling application.
+  Transforms the content of a page object into HTML, auto-detecting the type
+  of input.
   We test all forms within the string, and fall through to plain text
-  unless all of them are valid. Could be a bit rough when the typo's at
-  the end of the page, but I'm sure we can get more sophisticated later.
+  if any of them are invalid. Makes for something of a performance cost when the
+  typo's at the end of a long page, but I'm sure we can get more sophisticated
+  if necessary.
   Argument: wiki-page object
   Returns: a string containing the rendered output"
   (let ((*pretty* pretty))

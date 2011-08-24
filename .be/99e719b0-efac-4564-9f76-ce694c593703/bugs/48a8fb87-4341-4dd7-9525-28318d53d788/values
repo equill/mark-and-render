@@ -1,0 +1,18 @@
+creator: James Fleming <james@electronic-quill.net>
+
+
+reporter: James Fleming <james@electronic-quill.net>
+
+
+severity: minor
+
+
+status: open
+
+
+summary: Deprecate the use of 'mark-and-render:render-content in favour of embedding
+  that logic into the calling application
+
+
+time: Wed, 24 Aug 2011 06:25:04 +0000
+
