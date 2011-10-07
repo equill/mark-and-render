@@ -7,7 +7,16 @@
 (defun parse-wikimarkup (pagestring)
   "Parent function that takes a string of wikimarkup and returns the parsed AST."
   (with-input-from-string (instr pagestring)
-    (start-of-line instr)))
+    (markup-to-lists instr nil)))
+
+(defun markup-to-lists (instr acc)
+  (if (null (peek-char nil instr nil nil))
+    acc
+    (markup-to-lists
+      instr
+      (append acc
+              (list (cons :span (append (start-of-line instr)
+                                        (list (list :br)))))))))
 
 (defun cond-append (lst func arg)
   "Helper function to conditionally concatenate a list and the result of
@@ -39,22 +48,23 @@
       ;; Bold
       ((equal c #\*)
        (cond-append (parse-bold instr) #'mid-line instr))
-      ;; The beginning of a list
       ((and
          (equal char-acc "")
-         (equal c #\:))
+         (equal c #\h))
        (start-of-line instr (string c) list-acc))
-      ;; The beginning of a header line
-      ((and (equal char-acc ":")
-            (equal c #\h))
-       (start-of-line instr (concatenate 'string char-acc (string c)) list-acc))
-      ((and (equal char-acc ":h")
+      ((and (equal char-acc "h")
             (member c (list #\1 #\2 #\3 #\4 #\5 #\6)))
        (start-of-line instr (concatenate 'string char-acc (string c))))
-      ((and (cl-ppcre:all-matches ":h[1-6]" char-acc)
+      ((and (cl-ppcre:all-matches "h[1-6]" char-acc)
+            (equal c #\.))
+       (start-of-line instr (concatenate 'string char-acc (string c))))
+      ((and (cl-ppcre:all-matches "h[1-6]\\." char-acc)
             (equal c #\ ))
-       (append (list (read-from-string char-acc))
-               (mid-line instr)))
+       ;; What we need to do here is extract the digit, then assemble a suitable
+       ;; :H1-esque keyword from it, and wrap the rest of the line in it.
+       (list
+         (append (list (read-from-string (format nil ":H~A" (subseq char-acc 1 2))))
+                 (mid-line instr))))
       ;; Anything else
       (t
         (mid-line instr :currstr (string c))))))
@@ -68,7 +78,7 @@
       ((and
          (not escaped)
          (equal newchar #\[))
-       (parse-line-remainder
+       (mid-line
          instream
          :content (append content (list currstr) (list (parse-link instream)))))
       ;; Italic markup
@@ -90,8 +100,10 @@
          (equal newchar #\\))
        (mid-line instream :content content :currstr currstr :escaped t))
       ;; Newline
-      ((equal newchar #\Newline)
-       (mid-line instream :content (append content (list currstr) (list :br))))
+      ((or
+         (equal newchar #\Newline)
+         (equal newchar #\Return))
+       (append content (list currstr)))
       ;; End-of-line
       ((null newchar)
        (append content (list currstr)))

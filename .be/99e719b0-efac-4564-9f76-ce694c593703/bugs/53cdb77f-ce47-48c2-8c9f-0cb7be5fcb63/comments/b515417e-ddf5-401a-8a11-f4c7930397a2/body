@@ -1,0 +1,1 @@
+Hyperlink-related bug is fixed. I was correct: it was switching to the wrong parser after processing the first hyperlink.

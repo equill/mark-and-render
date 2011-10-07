@@ -1,0 +1,1 @@
+Sub-bug within this renderer: after a hyperlink is parsed, all following text is returned in a single chunk without so much as newline->BR breaks.

@@ -1,0 +1,1 @@
+Further clarification of the above bug: additional hyperlinks are recognised and correctly parsed, but newlines are not. I'd almost swear it's switching to a different parser after processing a hyperlink.
