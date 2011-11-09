@@ -54,23 +54,23 @@
       (is (equal '((:b "foo") " " (:i "bar") "baz") (parse-wikimarkup "*foo* _bar_baz")))
       ;;
       ;; Headings
-      (is (equal '(:h1 "foo") (parse-wikimarkup "h1. foo")))
-      (is (equal '(:h2 "foo") (parse-wikimarkup "h2. foo")))
-      (is (equal '(:h3 "foo") (parse-wikimarkup "h3. foo")))
-      (is (equal '(:h4 "foo") (parse-wikimarkup "h4. foo")))
-      (is (equal '(:h5 "foo") (parse-wikimarkup "h5. foo")))
-      (is (equal '(:h6 "foo") (parse-wikimarkup "h6. foo")))
+      (is (equal '((:h1 "foo")) (parse-wikimarkup "h1. foo")))
+      (is (equal '((:h2 "foo")) (parse-wikimarkup "h2. foo")))
+      (is (equal '((:h3 "foo")) (parse-wikimarkup "h3. foo")))
+      (is (equal '((:h4 "foo")) (parse-wikimarkup "h4. foo")))
+      (is (equal '((:h5 "foo")) (parse-wikimarkup "h5. foo")))
+      (is (equal '((:h6 "foo")) (parse-wikimarkup "h6. foo")))
       ;;
       ;; Heading with multiple words
-      (is (equal '(:h1 "foo bar") (parse-wikimarkup "h1. foo bar")))
+      (is (equal '((:h1 "foo bar")) (parse-wikimarkup "h1. foo bar")))
       ;;
       ;; More complex lines
-      (is (equal '(:h1 "foo " (:i "wibble") " bar") (parse-wikimarkup "h1. foo _wibble_ bar")))
+      (is (equal '((:h1 "foo " (:i "wibble") " bar")) (parse-wikimarkup "h1. foo _wibble_ bar")))
       ;;
       ;; FIXME
       ;; There shouldn't be a 'nil in the second spot, but I've yet to figure
       ;; out how to eliminate it without introducing other bugs.
-      (is (equal '(:h3 nil (:b "foo") " blah " (:i "meh") " wonkity wonk")
+      (is (equal '((:h3 nil (:b "foo") " blah " (:i "meh") " wonkity wonk"))
                  (parse-wikimarkup "h3. *foo* blah _meh_ wonkity wonk"))))
 
 #+(or)
