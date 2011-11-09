@@ -19,8 +19,10 @@ render-content takes a string, expecting either s-expressions or wikimarkup, and
 
 escape-string takes a string and replaces characters of concern with the equivalent HTML entities.
 
-For examples, read (the very short and rudimentary) test.lisp.
-
 There's a basic example of the available extensibility in the form of the :link function in the renderer, but a more generally useful means of inserting macro tags is next in the pipeline.
+
+There's also a basic test suite:
+(asdf:load-system :mark-and-render-tests)
+(eos:run! 'mark-and-render-tests:m-a-r)
 
 Bugs are tracked via BugsEverywhere (http://www.bugseverywhere.org/), to keep it in sync with the state of whatever version you happen to be working with.

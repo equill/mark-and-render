@@ -1,0 +1,1 @@
+Updated the test suite to match the intended markup, and tweaked the code to pass the tests. Also removed test.lisp.
