@@ -14,7 +14,9 @@
     acc
     (markup-to-lists
       instr
-      (append acc (start-of-line instr)))))
+      (if acc
+        (append acc '((:br)) (start-of-line instr))
+        (append acc (start-of-line instr))))))
 
 (defun cond-append (lst func arg)
   "Helper function to conditionally concatenate a list and the result of
@@ -60,8 +62,13 @@
             (equal c #\ ))
        ;; What we need to do here is extract the digit, then assemble a suitable
        ;; :H1-esque keyword from it, and wrap the rest of the line in it.
-       (append (list (read-from-string (format nil ":H~A" (subseq char-acc 1 2))))
-               (mid-line instr)))
+       (list (append (list (read-from-string (format nil ":H~A" (subseq char-acc 1 2))))
+               (mid-line instr))))
+      ;; Drop a leading newline
+      ((or
+         (equal c #\Newline)
+         (equal c #\Return))
+       (start-of-line instr char-acc list-acc))
       ;; Anything else
       (t
         (mid-line instr :currstr (string c))))))

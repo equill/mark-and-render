@@ -7,7 +7,7 @@ reporter: James Fleming <james@electronic-quill.net>
 severity: wishlist
 
 
-status: open
+status: fixed
 
 
 summary: Character-at-a-time wikimarkup parser to replace the existing one
