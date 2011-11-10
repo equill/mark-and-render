@@ -39,6 +39,11 @@
       ;; If we've been handed the end of the string, return the list accumulator
       ((null c)
        list-acc)
+      ;; Drop a leading newline
+      ((or
+         (equal c #\Newline)
+         (equal c #\Return))
+       (start-of-line instr char-acc list-acc))
       ;; Escape the next character
       ((equal c #\\)
        (mid-line instr :escaped t))
@@ -64,11 +69,6 @@
        ;; :H1-esque keyword from it, and wrap the rest of the line in it.
        (list (append (list (read-from-string (format nil ":H~A" (subseq char-acc 1 2))))
                (mid-line instr))))
-      ;; Drop a leading newline
-      ((or
-         (equal c #\Newline)
-         (equal c #\Return))
-       (start-of-line instr char-acc list-acc))
       ;; Anything else
       (t
         (mid-line instr :currstr (string c))))))
