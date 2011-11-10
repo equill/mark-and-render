@@ -10,13 +10,32 @@
     (markup-to-lists instr nil)))
 
 (defun markup-to-lists (instr acc)
+  "Takes the incoming string of wikimarkup, and returns a list of elements
+  to be rendered.
+  Arguments:
+  - input stream, assumed to be from a string
+  - list for accumulation"
   (if (null (peek-char nil instr nil nil))
+    ;; If we've hit the end of the string, return the accumulated list
     acc
+    ;; If there's still string to be parsed, recursively invoke this function
+    ;; on what remains of the string after invoking (start-of-line) and
+    ;; concatenating the result of that invocation onto the accumulator.
     (markup-to-lists
       instr
-      (if acc
-        (append acc '((:br)) (start-of-line instr))
-        (append acc (start-of-line instr))))))
+      ;; Insert a <br> after the last element, on the basis that the last
+      ;; section was terminated by a Newline or Carriage Return.
+      ;; But only if it's something that doesn't already have an equivalent
+      ;; effect.
+      (if
+        (or (null acc)
+            (let ((candidate (last acc)))
+              (and (consp candidate)
+                   (consp (car candidate))
+                   (member (caar candidate)
+                           (list :br :p :h1 :h2 :h3 :h4 :h5 :h6 :hr :ul :ol)))))
+        (append acc (start-of-line instr))
+        (append acc '((:br)) (start-of-line instr))))))
 
 (defun cond-append (lst func arg)
   "Helper function to conditionally concatenate a list and the result of
