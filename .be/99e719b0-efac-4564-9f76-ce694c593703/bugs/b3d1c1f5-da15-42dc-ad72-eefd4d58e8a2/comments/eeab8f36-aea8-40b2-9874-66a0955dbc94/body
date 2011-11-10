@@ -1,0 +1,1 @@
+Fixed, by adding some rather involved logic to test for the precedence of elements that don't need following with a <br>.
