@@ -34,8 +34,8 @@
                    (consp (car candidate))
                    (member (caar candidate)
                            (list :br :p :h1 :h2 :h3 :h4 :h5 :h6 :hr :ul :ol)))))
-        (append acc (start-of-line instr))
-        (append acc '((:br)) (start-of-line instr))))))
+        (nconc acc (start-of-line instr))
+        (nconc acc (list (list :br)) (start-of-line instr))))))
 
 (defun cond-append (lst func arg)
   "Helper function to conditionally concatenate a list and the result of
@@ -46,7 +46,7 @@
     (if (and result
              (or (atom result)
                  (car result)))
-      (append (list lst) result)
+      (nconc (list lst) result)
       (list lst))))
 
 (defun start-of-line (instr &optional (char-acc "") (list-acc nil))
@@ -86,8 +86,9 @@
             (equal c #\ ))
        ;; What we need to do here is extract the digit, then assemble a suitable
        ;; :H1-esque keyword from it, and wrap the rest of the line in it.
-       (list (append (list (read-from-string (format nil ":H~A" (subseq char-acc 1 2))))
-               (mid-line instr))))
+       (list
+         (nconc (list (read-from-string (format nil ":H~A" (subseq char-acc 1 2))))
+                (mid-line instr))))
       ;; Anything else
       (t
         (mid-line instr :currstr (string c))))))
@@ -103,20 +104,20 @@
          (equal newchar #\[))
        (mid-line
          instream
-         :content (append content (list currstr) (list (parse-link instream)))))
+         :content (nconc content (list currstr) (list (parse-link instream)))))
       ;; Italic markup
       ((and
          (not escaped)
          (equal newchar #\_))
        (mid-line
          instream
-         :content (append content (list currstr) (list (parse-italic instream)))))
+         :content (nconc content (list currstr) (list (parse-italic instream)))))
       ;; Bold markup
       ((and (not escaped)
             (equal newchar #\*))
        (mid-line
          instream
-         :content (append content (list currstr) (list (parse-bold instream)))))
+         :content (nconc content (list currstr) (list (parse-bold instream)))))
       ;; Escape the next character
       ((and
          (not escaped)
@@ -126,10 +127,10 @@
       ((or
          (equal newchar #\Newline)
          (equal newchar #\Return))
-       (append content (list currstr)))
+       (nconc content (list currstr)))
       ;; End-of-line
       ((null newchar)
-       (append content (list currstr)))
+       (nconc content (list currstr)))
       ;; Default: add the current character to the string we're accumulating
       (t
         (mid-line
