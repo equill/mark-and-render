@@ -9,6 +9,9 @@
   (with-input-from-string (instr pagestring)
     (markup-to-lists instr nil)))
 
+(defparameter *blocks-including-linebreaks*
+  '(:br :p :h1 :h2 :h3 :h4 :h5 :h6 :hr :ul :ol))
+
 (defun markup-to-lists (instr acc)
   "Takes the incoming string of wikimarkup, and returns a list of elements
   to be rendered.
@@ -33,7 +36,7 @@
               (and (consp candidate)
                    (consp (car candidate))
                    (member (caar candidate)
-                           (list :br :p :h1 :h2 :h3 :h4 :h5 :h6 :hr :ul :ol)))))
+                           *blocks-including-linebreaks*))))
         (nconc acc (start-of-line instr))
         (nconc acc (list (list :br)) (start-of-line instr))))))
 
@@ -98,39 +101,43 @@
   First argument is a string-stream, such as that provided by (with-input-from-string)"
   (let ((newchar (read-char instream nil)))
     (cond
+      ;; Newline
+      ((or
+         (equal newchar #\Newline)
+         (equal newchar #\Return)
+         (null newchar))
+       (nconc content (list currstr)))
       ;; Start of link markup
       ((and
          (not escaped)
          (equal newchar #\[))
        (mid-line
          instream
-         :content (nconc content (list currstr) (list (parse-link instream)))))
+         :content (nconc content (list currstr)
+                         (list (parse-link instream)))))
       ;; Italic markup
       ((and
          (not escaped)
          (equal newchar #\_))
        (mid-line
          instream
-         :content (nconc content (list currstr) (list (parse-italic instream)))))
+         :content (nconc content (list currstr)
+                         (list (parse-italic instream)))))
       ;; Bold markup
       ((and (not escaped)
             (equal newchar #\*))
        (mid-line
          instream
-         :content (nconc content (list currstr) (list (parse-bold instream)))))
+         :content (nconc content (list currstr)
+                         (list (parse-bold instream)))))
       ;; Escape the next character
       ((and
          (not escaped)
          (equal newchar #\\))
-       (mid-line instream :content content :currstr currstr :escaped t))
-      ;; Newline
-      ((or
-         (equal newchar #\Newline)
-         (equal newchar #\Return))
-       (nconc content (list currstr)))
-      ;; End-of-line
-      ((null newchar)
-       (nconc content (list currstr)))
+       (mid-line instream
+                 :content content
+                 :currstr currstr
+                 :escaped t))
       ;; Default: add the current character to the string we're accumulating
       (t
         (mid-line
