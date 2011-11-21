@@ -18,8 +18,8 @@
   Arguments:
   - input stream, assumed to be from a string
   - list for accumulation"
+  ;; If we've hit the end of the string, return the accumulated list
   (if (null (peek-char nil instr nil nil))
-    ;; If we've hit the end of the string, return the accumulated list
     acc
     ;; If there's still string to be parsed, recursively invoke this function
     ;; on what remains of the string after invoking (start-of-line) and
@@ -81,6 +81,20 @@
       ((equal c #\*)
        (cond-append (parse-bold instr) #'mid-line instr))
       ;;
+      ;; Unordered list
+      ;;
+      ;; Starts with '-'
+      ((and (equal char-acc "")
+            (equal c #\-))
+       (start-of-line instr (string c)))
+      ;; Started with a hypen, and a space follows
+      ((and (equal char-acc "-")
+            (equal c #\Space))
+       (unordered-list
+         instr
+         (list :ul
+               (nconc (list :li) (mid-line instr)))))
+      ;;
       ;; Header lines
       ;;
       ;; Starting with a lower-case 'h'
@@ -107,7 +121,7 @@
                 (mid-line instr))))
       ;; Anything else
       (t
-        (mid-line instr :currstr (string c))))))
+        (mid-line instr :currstr (concatenate 'string char-acc (string c)))))))
 
 (defun mid-line (instream &key (content ()) (currstr nil) (escaped nil))
   "Handles the text within a line, once we've determined its context.
@@ -160,3 +174,64 @@
           :currstr (if currstr
                      (format nil "~a~a" currstr newchar)
                      (string newchar)))))))
+
+(defun unordered-list (instream ul-tree &key (char-acc nil))
+  "Assembles a <ul><li></li></ul> tree.
+  newline-p indicates whether we've already seen a newline, which in turn says that we've struck a double-carriage-return, ending the list."
+  ;; If we've been handed a fresh line that doesn't begin with a hyphen,
+  ;; return the UL that we've accumulated thus far.
+  ;; Helpfully, this handles end-of-line in the same way by default.
+  (if (and (null char-acc) ; (null char-acc) means start-of-line
+           (not (member (peek-char nil instream nil nil)
+                        (list #\- #\Newline #\Return))))
+    (list ul-tree)
+    ;; If the line starts with a hyphen, it could be a list-item.
+    (let ((c (read-char instream nil nil)))
+      (cond
+        ;; Newline/Carriage return
+        ((or
+           (equal c #\Newline)
+           (equal c #\Return))
+         (unordered-list instream ul-tree))
+        ;; If the line starts with "-", it's probably a list-item.
+        ;; Send it back for more attention. 
+        ((and (null char-acc)
+              (equal c #\-))
+         (unordered-list instream
+                         ul-tree
+                         :char-acc (string c)))
+        ;; If the line did start with "- ", it's a list-item and should be treated as such.
+        ((and (equal char-acc "-")
+              (equal c #\Space))
+         (unordered-list
+           instream
+           (nconc ul-tree
+                  (list (nconc (list :li) (mid-line instream))))))
+        ;; This is a nested list-item.
+        ;; Not sure how to handle these right now, so I'm falling back to treating them
+        ;; like a list item whose string just happens to start with a hypen.
+        ((and (equal char-acc "-")
+              (equal c #\-))
+         (unordered-list
+           instream
+           (nconc ul-tree
+                  (list (nconc (list :li)
+                               (mid-line instream :currstr (string c)))))))
+        ;; An odd case in which a second or later line starts with a hypen,
+        ;; then a character that's neither a hyphen nor a space.
+        ;; For now, I'm just going to fail gracefully and pretend it's a properly-formed
+        ;; list-item.
+        ;; What I should really do is punt back the accumulated unordered list and then
+        ;; process this as a regular line, but I'm too tired to figure out how to do this
+        ;; properly right now.
+        ((and (equal char-acc "-"))
+         (unordered-list
+           instream
+           (nconc ul-tree
+                  (list (nconc (list :li)
+                               (mid-line instream :currstr (string c)))))))
+        ;; Default case: it's some other kind of line.
+        ;; NFI what would fall through here.
+        (t
+          (error "Somebody sneaked an invalid structure through 'unordered-list: '~A~A'~%"
+                 char-acc c))))))

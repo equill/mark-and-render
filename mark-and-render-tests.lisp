@@ -71,7 +71,12 @@
       ;; There shouldn't be a 'nil in the second spot, but I've yet to figure
       ;; out how to eliminate it without introducing other bugs.
       (is (equal '((:h3 nil (:b "foo") " blah " (:i "meh") " wonkity wonk"))
-                 (parse-wikimarkup "h3. *foo* blah _meh_ wonkity wonk"))))
+                 (parse-wikimarkup "h3. *foo* blah _meh_ wonkity wonk")))
+      (is (equal '((:ul (:li "foo")))
+                 (parse-wikimarkup "- foo")))
+      (is (equal '((:ul (:li "foo") (:li "bar")))
+                 (parse-wikimarkup "- foo
+- bar"))))
 
 #+(or)
 (run! 'm-a-r)
