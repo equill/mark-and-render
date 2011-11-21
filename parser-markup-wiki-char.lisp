@@ -53,15 +53,20 @@
       (list lst))))
 
 (defun start-of-line (instr &optional (char-acc "") (list-acc nil))
-  "Determines whether the start of the line contains a heading, list item or
-  something else of the kind, then passes the result along.
-  Currently checking for: :h[1-6]"
+  "Largely acts as a dispatching function.
+  Determines whether the start of the line contains a heading, list item or
+  something else of the kind, then passes the result along."
   (let ((c (read-char instr nil nil)))
     (cond
       ;; If we've been handed the end of the string, return the list accumulator
       ((null c)
        list-acc)
-      ;; Drop a leading newline
+      ;; Drop a leading newline,
+      ;; under the assumption that it's redundant. If one is relevant,
+      ;; it should be handled at the end of a line.
+      ;; This does have the implication that you can't pad the beginning of the
+      ;; page down with newlines, but that can be worked around by putting a
+      ;; space on each line if you really must do that.
       ((or
          (equal c #\Newline)
          (equal c #\Return))
@@ -75,20 +80,28 @@
       ;; Bold
       ((equal c #\*)
        (cond-append (parse-bold instr) #'mid-line instr))
+      ;;
+      ;; Header lines
+      ;;
+      ;; Starting with a lower-case 'h'
       ((and
          (equal char-acc "")
          (equal c #\h))
        (start-of-line instr (string c) list-acc))
+      ;; if it started with 'h', was that followed by a digit?
       ((and (equal char-acc "h")
             (member c (list #\1 #\2 #\3 #\4 #\5 #\6)))
        (start-of-line instr (concatenate 'string char-acc (string c))))
+      ;; if it started with 'h' and a digit, was that followed by a '.'?
       ((and (cl-ppcre:all-matches "h[1-6]" char-acc)
             (equal c #\.))
        (start-of-line instr (concatenate 'string char-acc (string c))))
+      ;; if it started with a full header sequence, produce a header line.
+      ;; What we need to do here is extract the digit, then assemble a suitable
+      ;; :H1-esque keyword from it, and wrap the rest of the line in a list
+      ;; starting with that keyword.
       ((and (cl-ppcre:all-matches "h[1-6]\\." char-acc)
             (equal c #\ ))
-       ;; What we need to do here is extract the digit, then assemble a suitable
-       ;; :H1-esque keyword from it, and wrap the rest of the line in it.
        (list
          (nconc (list (read-from-string (format nil ":H~A" (subseq char-acc 1 2))))
                 (mid-line instr))))
@@ -97,7 +110,8 @@
         (mid-line instr :currstr (string c))))))
 
 (defun mid-line (instream &key (content ()) (currstr nil) (escaped nil))
-  "The content argument is a cons-tree containing what we have so far.
+  "Handles the text within a line, once we've determined its context.
+  The content argument is a cons-tree containing what we have so far.
   First argument is a string-stream, such as that provided by (with-input-from-string)"
   (let ((newchar (read-char instream nil)))
     (cond
