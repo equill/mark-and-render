@@ -20,7 +20,7 @@
        (render-multiple-sexprs instr))
       ;; A plain string
       ((stringp instr)
-       (render-wikimarkup-page instr))
+       (parse-wikimarkup instr))
       ;; Valid markup
       ((consp instr)
        (emit-html-to-string instr))

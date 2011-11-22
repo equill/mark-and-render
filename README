@@ -15,7 +15,6 @@ Exported symbols:
 - valid-markup-p
 - escape-string
 - render-multiple-sexprs
-- render-wikimarkup-page
 - emit-html-to-string))
 
 (parse-wikimarkup) takes a string of wikimarkup, and returns a string containing the resulting HTML.

@@ -5,5 +5,4 @@
            parse-wikimarkup
            valid-markup-p
            render-multiple-sexprs
-           render-wikimarkup-page
            emit-html-to-string))
