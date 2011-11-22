@@ -11,7 +11,6 @@
            :depends-on (cl-ppcre)
            :components ((:file "defpackage")
                         (:file "renderer-default")
-                        (:file "parser-markup-wiki-line")
                         (:file "parser-markup-wiki-char")
                         (:file "parser-markup-cl")
                         (:file "mar"))
