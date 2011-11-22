@@ -10,18 +10,22 @@ Two styles of markup:
 - wikimarkup, at least one variety thereof
 - s-expressions
 
-Two symbols are exported:
-- render-content (from mar.lisp)
-- escape-string (from renderer-default.lisp)
-The parsers don't export anything, and never should.
+Exported symbols:
+- parse-wikimarkup (probably the only one you'll use)
+- valid-markup-p
+- escape-string
+- render-multiple-sexprs
+- render-wikimarkup-page
+- emit-html-to-string))
 
-render-content takes a string, expecting either s-expressions or wikimarkup, and returns a string containing the resulting HTML.
+(parse-wikimarkup) takes a string of wikimarkup, and returns a string containing the resulting HTML.
+(render-multiple-sexprs) does similar for a string containing one or more units of sexpr (lisp-style) markup.
 
 escape-string takes a string and replaces characters of concern with the equivalent HTML entities.
 
 There's a basic example of the available extensibility in the form of the :link function in the renderer, but a more generally useful means of inserting macro tags is next in the pipeline.
 
-There's also a basic test suite:
+There's also a basic test suite invoked via these two lines, after loading the main package:
 (asdf:load-system :mark-and-render-tests)
 (eos:run! 'mark-and-render-tests:m-a-r)
 
