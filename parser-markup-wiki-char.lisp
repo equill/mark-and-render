@@ -176,8 +176,7 @@
                      (string newchar)))))))
 
 (defun unordered-list (instream ul-tree &key (char-acc nil))
-  "Assembles a <ul><li></li></ul> tree.
-  newline-p indicates whether we've already seen a newline, which in turn says that we've struck a double-carriage-return, ending the list."
+  "Assembles a <ul><li></li></ul> tree."
   ;; If we've been handed a fresh line that doesn't begin with a hyphen,
   ;; return the UL that we've accumulated thus far.
   ;; Helpfully, this handles end-of-line in the same way by default.
@@ -185,7 +184,7 @@
            (not (member (peek-char nil instream nil nil)
                         (list #\- #\Newline #\Return))))
     (list ul-tree)
-    ;; If the line starts with a hyphen, it could be a list-item.
+    ;; Failing that, let's check what the next character in the stream is
     (let ((c (read-char instream nil nil)))
       (cond
         ;; Newline/Carriage return
