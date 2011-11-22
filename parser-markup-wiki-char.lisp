@@ -52,7 +52,7 @@
       (nconc (list lst) result)
       (list lst))))
 
-(defun start-of-line (instr &optional (char-acc "") (list-acc nil))
+(defun start-of-line (instr &optional (char-acc ""))
   "Largely acts as a dispatching function.
   Determines whether the start of the line contains a heading, list item or
   something else of the kind, then passes the result along."
@@ -60,7 +60,7 @@
     (cond
       ;; If we've been handed the end of the string, return the list accumulator
       ((null c)
-       list-acc)
+       nil)
       ;; Drop a leading newline,
       ;; under the assumption that it's redundant. If one is relevant,
       ;; it should be handled at the end of a line.
@@ -70,7 +70,7 @@
       ((or
          (equal c #\Newline)
          (equal c #\Return))
-       (start-of-line instr char-acc list-acc))
+       (start-of-line instr char-acc))
       ;; Escape the next character
       ((equal c #\\)
        (mid-line instr :escaped t))
@@ -101,7 +101,7 @@
       ((and
          (equal char-acc "")
          (equal c #\h))
-       (start-of-line instr (string c) list-acc))
+       (start-of-line instr (string c)))
       ;; if it started with 'h', was that followed by a digit?
       ((and (equal char-acc "h")
             (member c (list #\1 #\2 #\3 #\4 #\5 #\6)))
