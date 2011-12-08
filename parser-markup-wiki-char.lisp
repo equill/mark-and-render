@@ -310,6 +310,15 @@
          instream
          :content (nconc content (list currstr)
                          (list (parse-bold instream)))))
+      ;; Macro
+      ((and
+         (not escaped)
+         (equal newchar #\{))
+       (format t "mid-line handing over to 'parse-macro...~%")
+       (mid-line
+         instream
+         :content (nconc content (list currstr)
+                         (list (parse-macro instream)))))
       ;; Escape the next character
       ((and
          (not escaped)

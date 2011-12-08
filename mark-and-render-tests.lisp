@@ -99,6 +99,9 @@
       ;; End-of-string before the closing tag completes
       (is (equal '((:pre "bar{/pre"))
                  (parse-wikimarkup "{pre}bar{/pre")))
+      ;; Mid-string
+      (is (equal '("Blah " (:code "content") NIL)
+                 (parse-wikimarkup "Blah {code}content{/code}")))
       )
 
 #+(or)
