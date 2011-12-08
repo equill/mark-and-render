@@ -67,6 +67,91 @@
       (t
         (parse-bold instream (format nil "~A~A" acc newchar))))))
 
+(defun parse-macro (instream &optional (acc nil) (tag "") (end-tag nil))
+  "Takes a section of text wrapped in {macro-name} and {/macro-name} tags,
+  and returns a list of the form (:macro-name \"text\")
+  It's assumed that a leading '{' has already been encountered and discarded.
+  If no matching end-tag is found before the end-of-string is encountered,
+  everything between the opening tag and the end of string is still returned
+  as a macro section."
+  (let ((c (read-char instream nil nil)))
+    (cond
+      ;; end-of-string after beginning the end-tag
+      ((and
+         (null c)
+         acc
+         end-tag)
+       (format t "End-of-string before completing the end-tag~%")
+       (list (read-from-string (format nil ":~A" tag))
+             (format nil "~A{~A" acc end-tag)))
+      ;; end-of-string after identifying a tag
+      ((and
+         (null c)
+         acc
+         (> (length tag) 0))
+       (format t "End-of-string after identifying a tag~%")
+       (list (read-from-string (format nil ":~A" tag))
+             acc))
+      ;; end-of-string and we're still trying to identify a tag
+      ((null c)
+       (format t "end-of-string and we're still trying to identify a tag~%")
+       ;(nconc (list "{") (mid-line tag))
+       (format nil "{~A" tag)
+       )
+      ;; Empty tag - just return NIL
+      ((and (equal tag "")
+            (equal c #\}))
+       (format t "Empty tag; returning NIL~%")
+       ())
+      ;; We have a full open tag, and now we hit an open-bracket
+      ((and (> (length tag) 0)
+            acc
+            (equal c #\{))
+       (format t "We have a full open tag, and now we hit an open-bracket~%")
+       (parse-macro instream acc tag ""))
+      ;; End-tag lacking the pre-tag forward-slash
+      ((and end-tag
+            (= (length end-tag) 1)
+            (not (equal end-tag "/")))
+       (format t "It looked like an end-tag, but there's no leading forward-slash; instead we have '~A'.~%" end-tag)
+       (format t "Passing this as the accumulator: '~A'~%" (format nil "~A{~A~A" acc end-tag (string c)))
+       ;(parse-macro instream (concatenate 'string acc "{" (string c)) tag)
+       (parse-macro instream (format nil "~A{~A~A" acc end-tag (string c)) tag)
+       )
+      ;; Parsing the end-tag
+      ((and end-tag
+            (not (equal c #\})))
+       (format t "Adding '~A' to the end-tag~%" c)
+       (parse-macro instream acc tag (concatenate 'string end-tag (string c))))
+      ;; End of the end-tag, and it matches the initial tag
+      ((and end-tag
+            (equal c #\})
+            (equal end-tag (format nil "/~A" tag)))
+       (format t "Matched end-tag to tag. Returning...~%")
+       (list (read-from-string (format nil ":~A" tag))
+             acc))
+      ;; End of the end-tag, and it doesn't match the initial tag
+      ((and end-tag
+            (equal c #\}))
+       (format t "End-tag doesn't match the tag~%")
+       (parse-macro instream (format nil "~A{~A}" acc end-tag) tag))
+      ;; There's at least one character in the tag, and we hit an end-bracket
+      ((and (> (length tag) 0)
+            (null acc)
+            (equal c #\}))
+       (format t "Found an end-bracket, after accumulating at least one character in the tag~%")
+       (parse-macro instream "" tag))
+      ;; Content text
+      ((and (> (length tag) 0)
+            acc
+            (not (equal c #\{)))
+       (format t "Accumulating another content-text character: '~A'~%" c)
+       (parse-macro instream (concatenate 'string acc (string c)) tag))
+      ;; Default case: NFI, right now.
+      (t
+        (format t "Adding '~A' to the opening tag~%" c)
+        (parse-macro instream acc (concatenate 'string tag (string c)))))))
+
 (defun parse-wikimarkup (pagestring)
   "Parent function that takes a string of wikimarkup and returns the parsed AST."
   (with-input-from-string (instr pagestring)
@@ -143,6 +228,10 @@
       ;; Bold
       ((equal c #\*)
        (cond-append (parse-bold instr) #'mid-line instr))
+      ;; Macro
+      ((equal c #\{)
+       (format t "Start-of-line handing over to 'parse-macro...~%")
+       (cond-append (parse-macro instr) #'mid-line instr))
       ;;
       ;; Unordered list
       ;;

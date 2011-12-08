@@ -72,11 +72,34 @@
       ;; out how to eliminate it without introducing other bugs.
       (is (equal '((:h3 nil (:b "foo") " blah " (:i "meh") " wonkity wonk"))
                  (parse-wikimarkup "h3. *foo* blah _meh_ wonkity wonk")))
+      ;; Unordered lists
       (is (equal '((:ul (:li "foo")))
                  (parse-wikimarkup "- foo")))
       (is (equal '((:ul (:li "foo") (:li "bar")))
                  (parse-wikimarkup "- foo
-- bar"))))
+- bar")))
+      ;;
+      ;; Macros
+      ;;
+      ;; What we _should_ get
+      (is (equal '((:pre "bar"))
+                 (parse-wikimarkup "{pre}bar{/pre}")))
+      ;; Forgot the leading slash on the close-tag
+      (is (equal '((:pre "bar{pre}"))
+                 (parse-wikimarkup "{pre}bar{pre}")))
+      ;; Typo giving a mismatched close tag
+      (is (equal '((:pre "bar{/pree}"))
+                 (parse-wikimarkup "{pre}bar{/pree}")))
+      ;; End-of-string before the closing tag appears
+      (is (equal '((:pre "bar"))
+                 (parse-wikimarkup "{pre}bar")))
+      ;; End-of-string before the opening tag completes
+      (is (equal '("{pre")
+                 (parse-wikimarkup "{pre")))
+      ;; End-of-string before the closing tag completes
+      (is (equal '((:pre "bar{/pre"))
+                 (parse-wikimarkup "{pre}bar{/pre")))
+      )
 
 #+(or)
 (run! 'm-a-r)

@@ -1,0 +1,18 @@
+creator: James Fleming <james@electronic-quill.net>
+
+
+reporter: James Fleming <james@electronic-quill.net>
+
+
+severity: minor
+
+
+status: open
+
+
+summary: Interpret {tag}content{/tag} as a macro to be passed to the renderer as (:tag
+  content)
+
+
+time: Thu, 08 Dec 2011 12:32:45 +0000
+
