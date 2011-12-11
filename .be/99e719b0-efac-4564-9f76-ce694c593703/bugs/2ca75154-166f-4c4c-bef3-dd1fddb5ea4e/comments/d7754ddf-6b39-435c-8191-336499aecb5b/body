@@ -1,0 +1,1 @@
+This work now appears to be complete. So now you just need to add a suitable renderer macro, lob in the tags and its contents, and the parser will just automagically match them up.

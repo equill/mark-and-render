@@ -7,7 +7,7 @@ reporter: James Fleming <james@electronic-quill.net>
 severity: minor
 
 
-status: open
+status: closed
 
 
 summary: '{pre} tags that span multiple lines.'
