@@ -22,10 +22,27 @@ Exported symbols:
 
 escape-string takes a string and replaces characters of concern with the equivalent HTML entities.
 
-There's a basic example of the available extensibility in the form of the :link function in the renderer, but a more generally useful means of inserting macro tags is next in the pipeline.
+Wikimarkup currently supported:
+- *boldface*
+- _italic_
+- [display text|hyperlink]
+- unordered lists (I'm working on nested lists at the moment)
+- {pre}Preformatted blocks, spanning multiple lines{/pre}
+- {code}Code blocks{/code} - these can span lines, but the browser will render it as a single line
+- h1. Header lines, created by beginning the line with a string of the form, "h1. " (note the space between the dot and the following text)
 
-There's also a basic test suite invoked via these two lines, after loading the main package:
+There's a basic example of the available extensibility in the form of the :link function in the renderer, but a more generally useful means of inserting macro tags is available.
+The basic approach is:
+- insert an entry into the *macro-hash* hash-table, where the key is the macro's tag-name (e.g. :macro-name) and where the value is a function which accepts a string of text and returns valid HTML
+- invoke it via {macro-name}content to be processed{/macro-name} (note the leading forward-slash in the close-tag. Yes, this is exactly how the {pre} and {code} markup is done now, it's just that unrecognised tags get passed straight on through, for the browser to figure out.
+
+There's also a basic test suite using the Eos framework, available after loading the main package:
 (asdf:load-system :mark-and-render-tests)
 (eos:run! 'mark-and-render-tests:m-a-r)
 
 Bugs are tracked via BugsEverywhere (http://www.bugseverywhere.org/), to keep it in sync with the state of whatever version you happen to be working with.
+
+Versioned releases *will* be made, once I feel it's sufficiently complete to warrant such things.
+
+License: LLGPL.
+The spirit is basically thus: if you leave the code intact or modify it and use that yourself, use it as you will. If you write something proprietary that calls on it, that's OK. If you swipe smallish chunks of it, please give credit where it's due. If you extend it and release the results, that must also be under the LLGPL.
