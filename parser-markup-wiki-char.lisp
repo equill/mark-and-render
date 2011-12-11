@@ -137,26 +137,26 @@
 
 (defun parse-wikimarkup (pagestring)
   "Parent function that takes a string of wikimarkup and returns the parsed AST."
-  (with-input-from-string (instr pagestring)
-    (markup-to-lists instr nil)))
+  (with-input-from-string (instream pagestring)
+    (markup-to-lists instream nil)))
 
 (defparameter *blocks-including-linebreaks*
   '(:br :p :h1 :h2 :h3 :h4 :h5 :h6 :hr :ul :ol))
 
-(defun markup-to-lists (instr acc)
+(defun markup-to-lists (instream acc)
   "Takes the incoming string of wikimarkup, and returns a list of elements
   to be rendered.
   Arguments:
   - input stream, assumed to be from a string
   - list for accumulation"
   ;; If we've hit the end of the string, return the accumulated list
-  (if (null (peek-char nil instr nil nil))
+  (if (null (peek-char nil instream nil nil))
     acc
     ;; If there's still string to be parsed, recursively invoke this function
     ;; on what remains of the string after invoking (start-of-line) and
     ;; concatenating the result of that invocation onto the accumulator.
     (markup-to-lists
-      instr
+      instream
       ;; Insert a <br> after the last element, on the basis that the last
       ;; section was terminated by a Newline or Carriage Return.
       ;; But only if it's something that doesn't already have an equivalent
@@ -168,8 +168,8 @@
                    (consp (car candidate))
                    (member (caar candidate)
                            *blocks-including-linebreaks*))))
-        (nconc acc (start-of-line instr))
-        (nconc acc (list (list :br)) (start-of-line instr))))))
+        (nconc acc (start-of-line instream))
+        (nconc acc (list (list :br)) (start-of-line instream))))))
 
 (defun cond-append (lst func arg)
   "Helper function to conditionally concatenate a list and the result of
@@ -183,11 +183,11 @@
       (nconc (list lst) result)
       (list lst))))
 
-(defun start-of-line (instr &optional (char-acc ""))
+(defun start-of-line (instream &optional (char-acc ""))
   "Largely acts as a dispatching function.
   Determines whether the start of the line contains a heading, list item or
   something else of the kind, then passes the result along."
-  (let ((c (read-char instr nil nil)))
+  (let ((c (read-char instream nil nil)))
     (cond
       ;; If we've been handed the end of the string, return the list accumulator
       ((null c)
@@ -201,36 +201,36 @@
       ((or
          (equal c #\Newline)
          (equal c #\Return))
-       (start-of-line instr char-acc))
+       (start-of-line instream char-acc))
       ;; Escape the next character
       ((equal c #\\)
-       (mid-line instr :escaped t))
+       (mid-line instream :escaped t))
       ;; Italic
       ((equal c #\_)
-       (cond-append (parse-italic instr) #'mid-line instr))
+       (cond-append (parse-italic instream) #'mid-line instream))
       ;; Bold
       ((equal c #\*)
-       (cond-append (parse-bold instr) #'mid-line instr))
+       (cond-append (parse-bold instream) #'mid-line instream))
       ;; Hyperlink
       ((equal c #\[)
-       (cond-append (parse-link instr) #'mid-line instr))
+       (cond-append (parse-link instream) #'mid-line instream))
       ;; Macro
       ((equal c #\{)
-       (cond-append (parse-macro instr) #'mid-line instr))
+       (cond-append (parse-macro instream) #'mid-line instream))
       ;;
       ;; Unordered list
       ;;
       ;; Starts with '-'
       ((and (equal char-acc "")
             (equal c #\-))
-       (start-of-line instr (string c)))
+       (start-of-line instream (string c)))
       ;; Started with a hypen, and a space follows
       ((and (equal char-acc "-")
             (equal c #\Space))
        (unordered-list
-         instr
+         instream
          (list :ul
-               (nconc (list :li) (mid-line instr)))))
+               (nconc (list :li) (mid-line instream)))))
       ;;
       ;; Header lines
       ;;
@@ -238,15 +238,15 @@
       ((and
          (equal char-acc "")
          (equal c #\h))
-       (start-of-line instr (string c)))
+       (start-of-line instream (string c)))
       ;; if it started with 'h', was that followed by a digit?
       ((and (equal char-acc "h")
             (member c (list #\1 #\2 #\3 #\4 #\5 #\6)))
-       (start-of-line instr (concatenate 'string char-acc (string c))))
+       (start-of-line instream (concatenate 'string char-acc (string c))))
       ;; if it started with 'h' and a digit, was that followed by a '.'?
       ((and (cl-ppcre:all-matches "h[1-6]" char-acc)
             (equal c #\.))
-       (start-of-line instr (concatenate 'string char-acc (string c))))
+       (start-of-line instream (concatenate 'string char-acc (string c))))
       ;; if it started with a full header sequence, produce a header line.
       ;; What we need to do here is extract the digit, then assemble a suitable
       ;; :H1-esque keyword from it, and wrap the rest of the line in a list
@@ -255,10 +255,10 @@
             (equal c #\ ))
        (list
          (nconc (list (read-from-string (format nil ":H~A" (subseq char-acc 1 2))))
-                (mid-line instr))))
+                (mid-line instream))))
       ;; Anything else
       (t
-        (mid-line instr :currstr (concatenate 'string char-acc (string c)))))))
+        (mid-line instream :currstr (concatenate 'string char-acc (string c)))))))
 
 (defun mid-line (instream &key (content ()) (currstr nil) (escaped nil))
   "Handles the text within a line, once we've determined its context.
