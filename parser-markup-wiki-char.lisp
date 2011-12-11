@@ -211,6 +211,9 @@
       ;; Bold
       ((equal c #\*)
        (cond-append (parse-bold instr) #'mid-line instr))
+      ;; Hyperlink
+      ((equal c #\[)
+       (cond-append (parse-link instr) #'mid-line instr))
       ;; Macro
       ((equal c #\{)
        (cond-append (parse-macro instr) #'mid-line instr))
