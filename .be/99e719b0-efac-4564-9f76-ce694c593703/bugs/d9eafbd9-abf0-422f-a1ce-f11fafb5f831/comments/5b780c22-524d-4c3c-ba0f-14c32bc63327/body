@@ -1,0 +1,1 @@
+Next steps: add tests for nested UL list-items that begin with and/or contain markup such as italics, bold and hyperlinks, and ensure it properly transforms such input.
