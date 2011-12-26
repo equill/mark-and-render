@@ -72,12 +72,40 @@
       ;; out how to eliminate it without introducing other bugs.
       (is (equal '((:h3 nil (:b "foo") " blah " (:i "meh") " wonkity wonk"))
                  (parse-wikimarkup "h3. *foo* blah _meh_ wonkity wonk")))
+      ;;
       ;; Unordered lists
+      ;;
+      ;; Single list-item
       (is (equal '((:ul (:li "foo")))
                  (parse-wikimarkup "- foo")))
+      ;; Two consecutive list-items
       (is (equal '((:ul (:li "foo") (:li "bar")))
                  (parse-wikimarkup "- foo
 - bar")))
+      ;;
+      ;; Nested list-item mid-list
+      ;; Nested list-item at the start of the list
+      (is (equal '((:ul (:li "foo" (:ul (:li "bar")))))
+                 (parse-wikimarkup "- foo
+-- bar")))
+      ;; Nested list-item at the start of a two-item list
+      (is (equal '((:ul
+                     (:li "foo"
+                          (:ul (:li "bar")))
+                     (:li "baz")))
+                 (parse-wikimarkup "- foo
+-- bar
+- baz")))
+      ;; Two nested list-items at the start of a two-item list
+(is (equal '((:ul
+                     (:li "foo"
+                          (:ul (:li "bar")
+                               (:li "quux")))
+                     (:li "baz")))
+                 (parse-wikimarkup "- foo
+-- bar
+-- quux
+- baz")))
       ;;
       ;; Macros
       ;;
