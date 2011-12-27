@@ -150,6 +150,30 @@
 - baz")))
       ;;
       ;; Two nested list-items at the start of a two-item list,
+      ;; with italic text ending the first nested item
+(is (equal '((:ul
+                     (:li "foo"
+                          (:ul (:li "bar " (:i "baz") nil)
+                               (:li "quux")))
+                     (:li "baz")))
+                 (parse-wikimarkup "- foo
+-- bar _baz_
+-- quux
+- baz")))
+      ;;
+      ;; Two nested list-items at the start of a two-item list,
+      ;; with italic text in the middle of the first nested item
+(is (equal '((:ul
+                     (:li "foo"
+                          (:ul (:li "bar " (:i "baz") " gronk")
+                               (:li "quux")))
+                     (:li "baz")))
+                 (parse-wikimarkup "- foo
+-- bar _baz_ gronk
+-- quux
+- baz")))
+      ;;
+      ;; Two nested list-items at the start of a two-item list,
       ;; with italic text beginning the second nested item
 (is (equal '((:ul
                (:li "foo"
@@ -159,6 +183,30 @@
            (parse-wikimarkup "- foo
 -- quux
 -- _bar_ baz
+- baz")))
+      ;;
+      ;; Two nested list-items at the start of a two-item list,
+      ;; with italic text ending the second nested item
+(is (equal '((:ul
+               (:li "foo"
+                    (:ul (:li "quux")
+                         (:li "baz " (:i "bar") nil)))
+               (:li "baz")))
+           (parse-wikimarkup "- foo
+-- quux
+-- baz _bar_
+- baz")))
+      ;;
+      ;; Two nested list-items at the start of a two-item list,
+      ;; with italic text in the middle of the second nested item
+(is (equal '((:ul
+               (:li "foo"
+                    (:ul (:li "quux")
+                         (:li "bar " (:i "baz") " gronk")))
+               (:li "baz")))
+                 (parse-wikimarkup "- foo
+-- quux
+-- bar _baz_ gronk
 - baz")))
       ;;
       ;;

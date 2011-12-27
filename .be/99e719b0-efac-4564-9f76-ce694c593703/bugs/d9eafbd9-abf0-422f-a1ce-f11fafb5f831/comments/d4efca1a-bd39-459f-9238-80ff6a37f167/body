@@ -1,0 +1,1 @@
+Added more tests, and now I think we're satisfactorily done, even if the test suite could be decidedly more comprehensive and the mysterious NILs still need investigating. Abandoning any concern about the third level of nesting for now; will pursue that separately.
