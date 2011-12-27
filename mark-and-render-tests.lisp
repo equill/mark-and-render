@@ -137,6 +137,30 @@
 -- bar
 -- quux
 - baz")))
+      ;; Two nested list-items at the start of a two-item list,
+      ;; with italic text beginning the first nested item
+(is (equal '((:ul
+                     (:li "foo"
+                          (:ul (:li nil (:i "bar") " baz")
+                               (:li "quux")))
+                     (:li "baz")))
+                 (parse-wikimarkup "- foo
+-- _bar_ baz
+-- quux
+- baz")))
+      ;;
+      ;; Two nested list-items at the start of a two-item list,
+      ;; with italic text beginning the second nested item
+(is (equal '((:ul
+               (:li "foo"
+                    (:ul (:li "quux")
+                         (:li nil (:i "bar") " baz")))
+               (:li "baz")))
+           (parse-wikimarkup "- foo
+-- quux
+-- _bar_ baz
+- baz")))
+      ;;
       ;;
       ;; Macros
       ;;

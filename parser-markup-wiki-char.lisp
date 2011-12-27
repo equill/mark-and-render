@@ -352,25 +352,21 @@
          newline-encountered-p
          (null line-start-acc)
          (member c (list #\Newline #\Return)))
-       (format t "Encountered a second consecutive end-of-line character; returning control to unordered-list.~%")
        (nconc (car (last ul-tree)) (list nested-list))
        (unordered-list instream ul-tree))
       ; end-of-line character
       ((member c (list #\Newline #\Return))
-       (format t "Hit end-of-line with no text-accumulator~%")
        (nested-unordered-list instream ul-tree nested-list :newline-encountered-p t))
       ;; end-of-string with no accumulator
       ((and
          (null line-start-acc)
          (null c))
-       (format t "Encountered a null without a line-start accumulator; returning control to unordered-list.~%")
        (nconc (car (last ul-tree)) (list nested-list))
        (unordered-list instream ul-tree))
       ;; a line starting with a hyphen
       ((and
          (null line-start-acc)
          (equal c #\-))
-       (format t "~&Line starts with a hyphen.~%")
        (nested-unordered-list instream ul-tree nested-list
                               :line-start-acc (string c)))
       ;; a line that starts with two hyphens
@@ -378,7 +374,6 @@
          line-start-acc
          (equal line-start-acc "-")
          (equal c #\-))
-       (format t "~&Line starts with two hyphens~%")
        (nested-unordered-list
          instream ul-tree nested-list
          :line-start-acc (concatenate 'string line-start-acc (string c))))
@@ -387,12 +382,10 @@
       ((and
          (equal line-start-acc "-")
          (equal c #\Space))
-       (format t "~&Line starts with one hyphen and a space; handing back to unordered-list.~%")
        ;; Pre-emptively whack in the nested-list accumulated thus far
        (nconc (car (last ul-tree)) (list nested-list))
        (unordered-list
          instream
-         ;:char-acc (concatenate 'string line-start-acc (string c))
          (nconc ul-tree
                   (list (nconc (list :li) (mid-line instream))))))
       ;; a line that starts with two hyphens and a space
@@ -400,14 +393,13 @@
       ((and
          (equal line-start-acc "--")
          (equal c #\Space))
-       (format t "~&Line starts with two hyphens and a space; handing off to mid-line.~%")
        (nested-unordered-list
          instream
          ul-tree
          (nconc nested-list
-                (list (list :li (car (mid-line instream)))))))
+                (list (nconc (list :li) (mid-line instream))))))
       (t
-        (format t "~&Received another character: '~A'~%" c)))))
+        (format t "~&Received character that we don't really know what to do with: '~A'~%" c)))))
 
 (defun unordered-list (instream ul-tree &key (char-acc nil))
   "Assembles a <ul><li></li></ul> tree."
@@ -449,11 +441,10 @@
         ;; This is a nested list-item.
         ((and (equal char-acc "--")
               (equal c #\Space))
-         (format t "~&Found a nested list-item; handing over to nested-unordered-list~%")
          (nested-unordered-list
            instream
            ul-tree
-           (list :ul (list :li (car (mid-line instream))))))
+           (list :ul (nconc (list :li) (mid-line instream)))))
         ;; An odd case in which a second or later line starts with a hypen,
         ;; then a character that's neither a hyphen nor a space.
         ;; For now, I'm just going to fail gracefully and pretend it's a properly-formed
