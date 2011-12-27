@@ -98,6 +98,22 @@
                  (parse-wikimarkup "- foo _quux_ baz
 - bar")))
       ;;
+      ;; Two consecutive list-items with the second item starting with italic text
+      ;; FIXME: I have NFI why the 'nil is in there
+      (is (equal '((:ul (:li "foo") (:li nil (:i "bar") " quux")))
+                 (parse-wikimarkup "- foo
+- _bar_ quux")))
+      ;; Two consecutive list-items with the second item ending with italic text
+      ;; FIXME: I have NFI why the 'nil is in there
+      (is (equal '((:ul (:li "bar") (:li "foo " (:i "quux") nil)))
+                 (parse-wikimarkup "- bar
+- foo _quux_")))
+      ;; Two consecutive list-items with the second item including italic text
+      ;; FIXME: I have NFI why the 'nil is in there
+      (is (equal '((:ul (:li "bar") (:li "foo " (:i "quux") " baz")))
+                 (parse-wikimarkup "- bar
+- foo _quux_ baz")))
+      ;;
       ;; Nested unordered lists
       ;; Nested list-item at the start of the list
       (is (equal '((:ul (:li "foo" (:ul (:li "bar")))))
