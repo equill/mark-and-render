@@ -3,7 +3,7 @@
 ;;; Short instructions:
 ;;; (asdf:load-system :mark-and-render-tests)
 ;;; (in-package :mark-and-render-tests)
-;;; (run! 'm-a-r)
+;;; (eos:run! 'mark-and-render-tests:m-a-r)
 
 
 (def-suite m-a-r)
@@ -160,8 +160,4 @@
                  (parse-wikimarkup "{pre}bar{/pre")))
       ;; Mid-string
       (is (equal '("Blah " (:code "content") NIL)
-                 (parse-wikimarkup "Blah {code}content{/code}")))
-      )
-
-#+(or)
-(run! 'm-a-r)
+                 (parse-wikimarkup "Blah {code}content{/code}"))))
