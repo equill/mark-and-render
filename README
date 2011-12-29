@@ -26,7 +26,8 @@ Wikimarkup currently supported:
 - *boldface*
 - _italic_
 - [display text|hyperlink]
-- unordered lists (I'm working on nested lists at the moment)
+- unordered lists
+-- nested unordered lists (only one level of nesting is currently supported)
 - {pre}Preformatted blocks, spanning multiple lines{/pre}
 - {code}Code blocks{/code} - these can span lines, but the browser will render it as a single line
 - h1. Header lines, created by beginning the line with a string of the form, "h1. " (note the space between the dot and the following text)
