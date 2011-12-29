@@ -399,7 +399,7 @@
          (nconc nested-list
                 (list (nconc (list :li) (mid-line instream))))))
       (t
-        (format t "~&Received character that we don't really know what to do with: '~A'~%" c)))))
+        (Error "~&Received character that we don't really know what to do with: '~A'~%" c)))))
 
 (defun unordered-list (instream ul-tree &key (char-acc nil))
   "Assembles a <ul><li></li></ul> tree."
