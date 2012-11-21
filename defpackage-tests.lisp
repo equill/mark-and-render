@@ -1,6 +1,5 @@
 (defpackage :mark-and-render-tests
-  (:use :eos
-        :common-lisp
+  (:use :common-lisp
         :cl-user
         :mark-and-render)
   (:export m-a-r))
