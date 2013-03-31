@@ -178,7 +178,7 @@
           (nconc acc (list (list :br))))
         (start-of-line instream)))))
 
-(defun cond-append (lst func arg)
+(defun append-if-not-null (lst func arg)
   "Helper function to conditionally concatenate a list and the result of
   applying another function to its argument, depending on whether something other
   than nested nulls are returned."
@@ -208,16 +208,16 @@
        (mid-line instream :escaped t))
       ;; Italic text follows
       ((equal c #\_)
-       (cond-append (parse-italic instream) #'mid-line instream))
+       (append-if-not-null (parse-italic instream) #'mid-line instream))
       ;; Boldface text follows
       ((equal c #\*)
-       (cond-append (parse-bold instream) #'mid-line instream))
+       (append-if-not-null (parse-bold instream) #'mid-line instream))
       ;; Line starts with a hyperlink
       ((equal c #\[)
-       (cond-append (parse-link instream) #'mid-line instream))
+       (append-if-not-null (parse-link instream) #'mid-line instream))
       ;; Line starts with a macro
       ((equal c #\{)
-       (cond-append (parse-macro instream) #'mid-line instream))
+       (append-if-not-null (parse-macro instream) #'mid-line instream))
       ;;
       ;; Block-level markup.
       ;; Where these rely on multi-character sequences, the strategy is:
