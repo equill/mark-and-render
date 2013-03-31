@@ -191,47 +191,49 @@
       (list lst))))
 
 (defun start-of-line (instream &optional (char-acc ""))
-  "Largely acts as a dispatching function.
-  Determines whether the start of the line contains a heading, list item or
-  something else of the kind, then passes the result along."
+  "Dispatching function for the start of a new line of text. 
+  Determines whether the start of the line contains block-level markup, and invokes a suitable parser from there."
   (let ((c (read-char instream nil nil)))
     (cond
-      ;; If we've been handed the end of the string, return the list accumulator
+      ;; If we've been handed the end of the stream, return.
       ((null c)
        nil)
-      ;; Drop a leading newline,
-      ;; under the assumption that it's redundant. If one is relevant,
-      ;; it should be handled at the end of a line.
-      ;; This does have the implication that you can't pad the beginning of the
-      ;; page down with newlines, but that can be worked around by putting a
-      ;; space on each line if you really must do that.
+      ;; Replace a bare newline with a linebreak
       ((or
          (equal c #\Newline)
          (equal c #\Return))
-       (start-of-line instream char-acc))
-      ;; Escape the next character
+       (list (list :br)))
+      ;; If the line starts with a backslash, escape the following character
       ((equal c #\\)
        (mid-line instream :escaped t))
-      ;; Italic
+      ;; Italic text follows
       ((equal c #\_)
        (cond-append (parse-italic instream) #'mid-line instream))
-      ;; Bold
+      ;; Boldface text follows
       ((equal c #\*)
        (cond-append (parse-bold instream) #'mid-line instream))
-      ;; Hyperlink
+      ;; Line starts with a hyperlink
       ((equal c #\[)
        (cond-append (parse-link instream) #'mid-line instream))
-      ;; Macro
+      ;; Line starts with a macro
       ((equal c #\{)
        (cond-append (parse-macro instream) #'mid-line instream))
       ;;
-      ;; Unordered list
+      ;; Block-level markup.
+      ;; Where these rely on multi-character sequences, the strategy is:
+      ;; - check whether the first character in the line is the first character
+      ;;   of the sequence. If it is, recurse back through 'start-of-line to
+      ;;   check the next one.
+      ;; - if it's only a partial match, we fall through to the catch-all
+      ;;   condition at the end, and regard it as ordinary text.
       ;;
-      ;; Starts with '-'
+      ;; Unordered list
+      ;; - the line starts with a hyphen (dash, minus, whatever)
       ((and (equal char-acc "")
             (equal c #\-))
        (start-of-line instream (string c)))
-      ;; Started with a hypen, and a space follows
+      ;; The line started with a hypen, followed by a space.
+      ;; This confirms that it's an unordered list.
       ((and (equal char-acc "-")
             (equal c #\Space))
        (unordered-list
@@ -240,17 +242,16 @@
                (nconc (list :li) (mid-line instream)))))
       ;;
       ;; Header lines
-      ;;
-      ;; Starting with a lower-case 'h'
+      ;; - the line started with a lower-case 'h'.
       ((and
          (equal char-acc "")
          (equal c #\h))
        (start-of-line instream (string c)))
-      ;; if it started with 'h', was that followed by a digit?
+      ;; - if the started with 'h', was that followed by a digit?
       ((and (equal char-acc "h")
             (member c (list #\1 #\2 #\3 #\4 #\5 #\6)))
        (start-of-line instream (concatenate 'string char-acc (string c))))
-      ;; if it started with 'h' and a digit, was that followed by a '.'?
+      ;; - if it started with 'h' and a digit, was that followed by a '.'?
       ((and (cl-ppcre:all-matches "h[1-6]" char-acc)
             (equal c #\.))
        (start-of-line instream (concatenate 'string char-acc (string c))))
@@ -264,6 +265,7 @@
          (nconc (list (read-from-string (format nil ":H~A" (subseq char-acc 1 2))))
                 (mid-line instream))))
       ;; Anything else
+      ;; - including partial matches for block-level markup
       (t
         (mid-line instream :currstr (concatenate 'string char-acc (string c)))))))
 
