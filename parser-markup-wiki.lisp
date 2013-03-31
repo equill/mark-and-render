@@ -271,16 +271,30 @@
 
 (defun mid-line (instream &key (content ()) (currstr nil) (escaped nil))
   "Handles the text within a line, once we've determined its context.
-  The content argument is a cons-tree containing what we have so far.
-  First argument is a string-stream, such as that provided by (with-input-from-string)"
+  The first argument is a  character stream.
+  The content argument is a cons-tree containing what we have so far. It's a subset of the AST that we will ultimately return to the caller of parse-wikimarkup.
+  currstr accumulates the list of characters seen so far, enabling recursion.
+  escaped indicates whether this character should be regarded as an ordinary
+  character, rather than as a markup signifier."
   (let ((newchar (read-char instream nil)))
     (cond
-      ;; Newline
+      ;; End-of-line
+      ;;
+      ;; If the current character denotes end-of-line or end-of-stream,
+      ;; append the text-accumulator to the content accumulator and
+      ;; return the result.
       ((or
          (equal newchar #\Newline)
          (equal newchar #\Return)
          (null newchar))
        (nconc content (list currstr)))
+      ;;
+      ;; Markup
+      ;;
+      ;; For each markup element that we recognise, append the result of parsing
+      ;; the link to the content accumulator, then hand that back to this
+      ;; function and carry on.
+      ;;
       ;; Start of link markup
       ((and
          (not escaped)
@@ -297,14 +311,14 @@
          instream
          :content (nconc content (list currstr)
                          (list (parse-italic instream)))))
-      ;; Bold markup
+      ;; Boldface markup
       ((and (not escaped)
             (equal newchar #\*))
        (mid-line
          instream
          :content (nconc content (list currstr)
                          (list (parse-bold instream)))))
-      ;; Macro
+      ;; User-defined macro 
       ((and
          (not escaped)
          (equal newchar #\{))
@@ -320,7 +334,10 @@
                  :content content
                  :currstr currstr
                  :escaped t))
-      ;; Default: add the current character to the string we're accumulating
+      ;;
+      ;; Default
+      ;;
+      ;; Add the current character to the string we're accumulating
       (t
         (mid-line
           instream
