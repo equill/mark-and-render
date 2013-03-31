@@ -116,7 +116,7 @@
 - foo _quux_ baz")))
   ;;
   ;; Double-newlines
-(fiveam:is (equal '("foo" (:BR) "bar")
+(fiveam:is (equal '("foo" (:br) (:br) "bar")
                   (parse-wikimarkup "foo
 
 bar")))
