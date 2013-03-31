@@ -115,6 +115,11 @@
                     (parse-wikimarkup "- bar
 - foo _quux_ baz")))
   ;;
+  ;; Double-newlines
+(fiveam:is (equal '("foo" (:BR) "bar")
+                  (parse-wikimarkup "foo
+
+bar")))
   ;; Nested unordered lists
   ;; Nested list-item at the start of the list
   (fiveam:is
