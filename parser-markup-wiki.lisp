@@ -145,11 +145,16 @@
   '(:br :p :h1 :h2 :h3 :h4 :h5 :h6 :hr :ul :ol))
 
 (defun markup-to-lists (instream acc)
-  "Takes the incoming string of wikimarkup, and returns a list of elements
+  "Takes a string of wikimarkup, and returns a list of elements
   to be rendered.
   Arguments:
   - input stream, assumed to be from a string
-  - list for accumulation"
+  - list for accumulation
+
+  Recursively works its way through the input stream, a character at a time.
+  - if the next character is null, return the accumulator
+  - otherwise, call itself on the input stream, appending to the accumulator the result of invoking 'start-of-line on the instream
+  -- if necessary, insert a line-break after the existing accumulator before adding the new results"
   ;; If we've hit the end of the string, return the accumulated list
   (if (null (peek-char nil instream nil nil))
     acc
@@ -158,19 +163,20 @@
     ;; concatenating the result of that invocation onto the accumulator.
     (markup-to-lists
       instream
-      ;; Insert a <br> after the last element, on the basis that the last
-      ;; section was terminated by a Newline or Carriage Return.
-      ;; But only if it's something that doesn't already have an equivalent
-      ;; effect.
-      (if
-        (or (null acc)
-            (let ((candidate (last acc)))
-              (and (consp candidate)
-                   (consp (car candidate))
-                   (member (caar candidate)
-                           *blocks-including-linebreaks*))))
-        (nconc acc (start-of-line instream))
-        (nconc acc (list (list :br)) (start-of-line instream))))))
+      (nconc
+        ;; Insert a <br> after the last element, if necessary
+        (if
+          ;; If either the accumulator is null...
+          (or (null acc)
+              ;; ...or the last element in the accumulator is a list whose first element is a list whose own first element is a markup element that invokes a newline anyway...
+              (let ((candidate (last acc)))
+                (and (consp candidate)
+                     (consp (car candidate))
+                     (member (caar candidate)
+                             *blocks-including-linebreaks*))))
+          acc
+          (nconc acc (list (list :br))))
+        (start-of-line instream)))))
 
 (defun cond-append (lst func arg)
   "Helper function to conditionally concatenate a list and the result of
