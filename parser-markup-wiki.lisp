@@ -136,7 +136,8 @@
         (parse-macro instream acc (concatenate 'string tag (string c)))))))
 
 (defun parse-wikimarkup (pagestring)
-  "Parent function that takes a string of wikimarkup and returns the parsed AST."
+  "Parent function that takes a string of wikimarkup and returns the parsed AST.
+  Essentially a trampoline function into markup-to-lists."
   (with-input-from-string (instream pagestring)
     (markup-to-lists instream nil)))
 
