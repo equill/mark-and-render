@@ -431,8 +431,8 @@
   "Assembles a <ul><li></li></ul> tree."
   ;; If we've been handed a fresh line that doesn't begin with a hyphen,
   ;; return the UL that we've accumulated thus far.
-  ;; Helpfully, this handles end-of-line in the same way by default.
-  (if (and (null char-acc) ; (null char-acc) means start-of-line
+  ;; Helpfully, this handles end-of-line in the same way.
+  (if (and (null char-acc) ; an empty char-acc means start-of-line
            (not (member (peek-char nil instream nil nil)
                         (list #\- #\Newline #\Return))))
     (list ul-tree)
