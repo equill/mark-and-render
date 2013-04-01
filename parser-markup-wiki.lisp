@@ -371,61 +371,74 @@
   ;; ' text-acc is used to build up the content of the LI, once we've established
   ;; that this is in fact a nested UL LI
   ;;
-  (let ((c (read-char instream nil nil)))
-    (cond
-      ;; end-of-string with no accumulator
-      ((and
-         newline-encountered-p
-         (null line-start-acc)
-         (member c (list #\Newline #\Return)))
-       (nconc (car (last ul-tree)) (list nested-list))
-       (unordered-list instream ul-tree))
-      ; end-of-line character
-      ((member c (list #\Newline #\Return))
-       (nested-unordered-list instream ul-tree nested-list :newline-encountered-p t))
-      ;; end-of-string with no accumulator
-      ((and
-         (null line-start-acc)
-         (null c))
-       (nconc (car (last ul-tree)) (list nested-list))
-       (unordered-list instream ul-tree))
-      ;; a line starting with a hyphen
-      ((and
-         (null line-start-acc)
-         (equal c #\-))
-       (nested-unordered-list instream ul-tree nested-list
-                              :line-start-acc (string c)))
-      ;; a line that starts with two hyphens
-      ((and
-         line-start-acc
-         (equal line-start-acc "-")
-         (equal c #\-))
-       (nested-unordered-list
-         instream ul-tree nested-list
-         :line-start-acc (concatenate 'string line-start-acc (string c))))
-      ;; a line that starts with one hyphen and a space
-      ;; - end the nested-list and go back around through unordered-list
-      ((and
-         (equal line-start-acc "-")
-         (equal c #\Space))
-       ;; Pre-emptively whack in the nested-list accumulated thus far
-       (nconc (car (last ul-tree)) (list nested-list))
-       (unordered-list
-         instream
-         (nconc ul-tree
+  ;;
+  ;; If we've been handed a fresh line that doesn't begin with a hyphen,
+  ;; return the UL that we've accumulated thus far.
+  ;; Helpfully, this handles end-of-line in the same way.
+  (if (and newline-encountered-p ; at the start of a new line
+           (not (member (peek-char nil instream nil nil)
+                        (list #\- #\Newline #\Return))))
+    (list ul-tree)
+    ;; Failing that, let's check what the next character in the stream is
+    (let ((c (read-char instream nil nil)))
+      (cond
+        ;; end-of-line after already having encountered a newline,
+        ;; with no start-of-line accumulator
+        ((and
+           newline-encountered-p
+           (null line-start-acc)
+           (member c (list #\Newline #\Return)))
+         ;; Bolt the nested list onto the last element of the ul-tree
+         (nconc (car (last ul-tree)) (list nested-list))
+         ;; Return to 'unordered-list, passing it the modified ul-tree
+         (unordered-list instream ul-tree))
+        ; end-of-line character
+        ((member c (list #\Newline #\Return))
+         (nested-unordered-list instream ul-tree nested-list :newline-encountered-p t))
+        ;; end-of-stream with no accumulator
+        ((and
+           (null line-start-acc)
+           (null c))
+         (nconc (car (last ul-tree)) (list nested-list))
+         (unordered-list instream ul-tree))
+        ;; a line starting with a hyphen
+        ((and
+           (null line-start-acc)
+           (equal c #\-))
+         (nested-unordered-list instream ul-tree nested-list
+                                :line-start-acc (string c)))
+        ;; a line that starts with two hyphens
+        ((and
+           line-start-acc
+           (equal line-start-acc "-")
+           (equal c #\-))
+         (nested-unordered-list
+           instream ul-tree nested-list
+           :line-start-acc (concatenate 'string line-start-acc (string c))))
+        ;; a line that starts with one hyphen and a space
+        ;; - return to unordered-list
+        ((and
+           (equal line-start-acc "-")
+           (equal c #\Space))
+         ;; whack in the nested-list accumulated thus far
+         (nconc (car (last ul-tree)) (list nested-list))
+         ;; - end the nested-list and go back around through unordered-list
+         (unordered-list
+           instream
+           (nconc ul-tree
                   (list (nconc (list :li) (mid-line instream))))))
-      ;; a line that starts with two hyphens and a space
-      ;; - another nested-list item
-      ((and
-         (equal line-start-acc "--")
-         (equal c #\Space))
-       (nested-unordered-list
-         instream
-         ul-tree
-         (nconc nested-list
-                (list (nconc (list :li) (mid-line instream))))))
-      (t
-        (Error "~&Received character that we don't really know what to do with: '~A'~%" c)))))
+        ;; a line that starts with two hyphens and a space
+        ;; - another nested-list item
+        ((and
+           (equal line-start-acc "--")
+           (equal c #\Space))
+         (nested-unordered-list
+           instream
+           ul-tree
+           (nconc nested-list
+                  (list (nconc (list :li) (mid-line instream))))))
+        (t
+          (Error "~&Received character that we don't really know what to do with: '~A'~%" c))))))
 
 (defun unordered-list (instream ul-tree &key (char-acc nil))
   "Assembles a <ul><li></li></ul> tree."
