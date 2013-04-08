@@ -378,7 +378,7 @@
   (if (and newline-encountered-p ; at the start of a new line
            (not (member (peek-char nil instream nil nil)
                         (list #\- #\Newline #\Return))))
-    (list ul-tree)
+         (list (nconc ul-tree (list nested-list)))
     ;; Failing that, let's check what the next character in the stream is
     (let ((c (read-char instream nil nil)))
       (cond
@@ -388,10 +388,8 @@
            newline-encountered-p
            (null line-start-acc)
            (member c (list #\Newline #\Return)))
-         ;; Bolt the nested list onto the last element of the ul-tree
-         (nconc (car (last ul-tree)) (list nested-list))
          ;; Return to 'unordered-list, passing it the modified ul-tree
-         (unordered-list instream ul-tree))
+         (list (nconc (car (last ul-tree)) (list nested-list))))
         ; end-of-line character
         ((member c (list #\Newline #\Return))
          (nested-unordered-list instream ul-tree nested-list :newline-encountered-p t))
