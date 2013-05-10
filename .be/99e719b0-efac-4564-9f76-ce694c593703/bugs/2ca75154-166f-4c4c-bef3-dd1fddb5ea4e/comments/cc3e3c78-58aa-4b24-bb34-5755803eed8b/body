@@ -1,1 +1,0 @@
-Now passes the barest basic test for working mid-line. Next steps: beef up the testing for mid-line failure cases, then implement it in unordered list items.

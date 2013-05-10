@@ -1,1 +1,0 @@
-Turns out we already have tests. Next action: incorporate the content of test.lisp into mark-and-render-tests.lisp if appropriate, then remove test.lisp.

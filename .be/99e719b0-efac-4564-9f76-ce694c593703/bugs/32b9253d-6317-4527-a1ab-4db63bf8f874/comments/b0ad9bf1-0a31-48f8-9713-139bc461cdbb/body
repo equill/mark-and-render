@@ -1,1 +1,0 @@
-First, define what correct handling is. I'm leaning towards ending the list, returning that, and starting the next line as a regular one with the first two characters already in the buffer. This could get very involved if we also want to handle such lines that follow the hyphen with bold, italic, a macro tag or a hyperlink.

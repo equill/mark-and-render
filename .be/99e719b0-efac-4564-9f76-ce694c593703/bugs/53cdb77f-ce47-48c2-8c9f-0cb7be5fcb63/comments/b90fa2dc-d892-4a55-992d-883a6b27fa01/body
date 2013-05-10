@@ -1,1 +1,0 @@
-I think I'm heading in the right direction with header-line detection, but it's definitely not behaving as intended, and the fact that mid-page headers are being ignored suggests that newlines are not correctly triggering a transition back to 'start-of-line.

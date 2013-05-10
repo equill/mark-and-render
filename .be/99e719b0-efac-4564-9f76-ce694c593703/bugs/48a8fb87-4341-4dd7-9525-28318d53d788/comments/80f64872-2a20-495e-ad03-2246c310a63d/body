@@ -1,1 +1,0 @@
-render-content is found in mar.lisp, and should be moved to parser-markup-cl.lisp as a demo with suitable comments.
